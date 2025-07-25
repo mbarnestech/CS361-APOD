@@ -29,8 +29,7 @@ if __name__ == "__main__":
             pyobj = socket.recv_pyobj()
             if pyobj["status"] != "success":
                 print(pyobj["status"])
-                waiting = False
-                continue
-            print(pyobj["apod_dict"])
+            else:
+                print(pyobj["apod_dict"], pyobj["image_status"])
             waiting = False
 
