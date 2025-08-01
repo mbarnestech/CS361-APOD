@@ -101,7 +101,7 @@ if __name__ == "__main__":
     while True:
         # get and parse message
         message = socket.recv()
-        is_success, apod_dict, image_status = parse_message(message)
+        is_success, apod_dict, image_status = parse_message(message, api_key)
         if is_success:
             socket.send_pyobj({"status": "success", "apod_dict": apod_dict, "image_status": image_status})
         else:
