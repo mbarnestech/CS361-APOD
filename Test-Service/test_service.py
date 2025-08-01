@@ -4,7 +4,7 @@ import zmq
 
 def get_env_variables():
     load_dotenv()
-    socket_number = os.getenv("SOCKET_NUMBER")
+    socket_number = os.getenv("PORT_APOD")
     return socket_number
 
 def set_up_client(socket_number):

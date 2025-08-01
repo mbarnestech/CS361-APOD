@@ -8,11 +8,12 @@ import urllib.request
 import time
 from PIL import Image
 import re
-load_dotenv()
 
-socket_number = os.getenv("PORT_APOD")
-api_key = os.getenv("APOD_API_KEY")
-
+def get_env_variables():
+    load_dotenv()
+    socket_number = os.getenv("PORT_APOD")
+    api_key = os.getenv("APOD_API_KEY")
+    return socket_number, api_key
 
 def set_up_server(socket_number):
     context = zmq.Context()
@@ -93,13 +94,14 @@ def parse_message(message, api_key):
 
 
 if __name__ == "__main__":
+    socket_number, api_key = get_env_variables()
     socket = set_up_server(socket_number)
     dateRegex = r"\d{4}-\d{2}-\d{2}"
 
     while True:
         # get and parse message
         message = socket.recv()
-        is_success, apod_dict, image_status = parse_message(message, api_key)
+        is_success, apod_dict, image_status = parse_message(message)
         if is_success:
             socket.send_pyobj({"status": "success", "apod_dict": apod_dict, "image_status": image_status})
         else:
