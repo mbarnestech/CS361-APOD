@@ -80,32 +80,42 @@ if pyobj["status"] != "success":
 else:
     print(pyobj["apod_dict"], pyobj["image_status"])
 ```
-# UML Sequence Diagram
-The following UML sequence diagram shows how the main program interacts with the microservice to request and receive CSV processing operations:
+# UML Sequence Diagrams
+## Success
+The following is a UML sequence diagram showing the processes between the main program, the ZeroMQ Socket, this microservice, and the APOD API for a successful request/response cycle. 
 ```mermaid
 sequenceDiagram
-    participant Client
+    participant Main_Program
     participant ZeroMQ_Socket
     participant APOD_Microservice
     participant APOD_API
     
-    Client->>ZeroMQ: Send Request as a string
-    ZeroMQ->>APOD_Microservice: Forward Request
-    APOD_Microservice->>APOD_Microservice: Process request; create call to APOD API
+    Main_Program->>ZeroMQ_Socket: Send Request as a string
+    ZeroMQ_Socket->>APOD_Microservice: Forward Request
+    APOD_Microservice->>APOD_Microservice: Process request and create call to APOD API
     APOD_Microservice->>APOD_API: Request information on current or previous APOD
     APOD_API->>APOD_Microservice: Return information on requested APOD
-    APOD_Microservice->>APOD_Microservice: Process information from APOD API; show picture
-    APOD_Microservice->>ZeroMQ: Send Response as Python Object (status, image_status, apod_dict)
-    ZeroMQ->>Client: Deliver Response
-    
-    alt Invalid Request
-        Client->>ZeroMQ: Send invalid request string
-        ZeroMQ->>APOD_Microservice: Forward request
-        APOD_Microservice->>APOD_Microservice: Determines request is invalid
-        APOD_Microservice->>ZeroMQ: Send Response as Python Object (status only)
-        ZeroMQ->>Client: Deliver Response
-    end
+    APOD_Microservice->>APOD_Microservice: Process information from APOD API and show picture
+    APOD_Microservice->>ZeroMQ_Socket: Send Response as Python Dictionary (status, image_status, apod_dict)
+    ZeroMQ_Socket->>Main_Program: Deliver Response
 ```
+## Invalid Response
+
+The following is a UML sequence diagram showing the processes between the main program, the ZeroMQ Socket, this microservice, and the APOD API for a request/response cycle with an invalid request. 
+```mermaid
+sequenceDiagram
+    participant Main_Program
+    participant ZeroMQ_Socket
+    participant APOD_Microservice
+    participant APOD_API
+    
+    Main_Program->>ZeroMQ_Socket: Send invalid request string
+    ZeroMQ_Socket->>APOD_Microservice: Forward request
+    APOD_Microservice->>APOD_Microservice: Determine request is invalid
+    APOD_Microservice->>ZeroMQ_Socket: Send Response as Python Dictionary (status only)
+    ZeroMQ_Socket->>Main_Program: Deliver Response
+```
+
 
 # Other Useful Information 
 
