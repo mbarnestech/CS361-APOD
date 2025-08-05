@@ -91,12 +91,13 @@ sequenceDiagram
     participant APOD_API
     
     Main_Program->>ZeroMQ_Socket: Send Request as a string
-    ZeroMQ_Socket->>APOD_Microservice: Forward Request
-    APOD_Microservice->>APOD_Microservice: Process request and create call to APOD API
-    APOD_Microservice->>APOD_API: Request information on current or previous APOD
+    ZeroMQ_Socket->>APOD_Microservice: Forward Request (socket. recv())
+    APOD_Microservice->>APOD_Microservice: Process request and create call to APOD API (parse_message(message, api_key))
+    APOD_Microservice->>APOD_API: Request information on current or previous APOD (get_data(api_key, date))
     APOD_API->>APOD_Microservice: Return information on requested APOD
-    APOD_Microservice->>APOD_Microservice: Process information from APOD API and show picture
-    APOD_Microservice->>ZeroMQ_Socket: Send Response as Python Dictionary (status, image_status, apod_dict)
+    APOD_Microservice->>APOD_Microservice: Process information from APOD API (get_apod_dict(response))
+    APOD_Microservice->>APOD_Microservice: show picture (show_image(apod_dict["url"], response["media_type"]))
+    APOD_Microservice->>ZeroMQ_Socket: Send Response as Python Dictionary (socket.send_pyobj({"status": "success", "apod_dict": apod_dict, "image_status": image_status}))
     ZeroMQ_Socket->>Main_Program: Deliver Response
 ```
 ## Invalid Response
@@ -110,9 +111,9 @@ sequenceDiagram
     participant APOD_API
     
     Main_Program->>ZeroMQ_Socket: Send invalid request string
-    ZeroMQ_Socket->>APOD_Microservice: Forward request
-    APOD_Microservice->>APOD_Microservice: Determine request is invalid
-    APOD_Microservice->>ZeroMQ_Socket: Send Response as Python Dictionary (status only)
+    ZeroMQ_Socket->>APOD_Microservice: Forward request (socket. recv())
+    APOD_Microservice->>APOD_Microservice: Determine request is invalid (parse_message(message, api_key))
+    APOD_Microservice->>ZeroMQ_Socket: Send Response as Python Dictionary (socket.send_pyobj({"status": "invalid request"}))
     ZeroMQ_Socket->>Main_Program: Deliver Response
 ```
 
